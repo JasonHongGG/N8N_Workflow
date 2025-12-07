@@ -1,0 +1,2050 @@
+{
+  "name": "RAG",
+  "nodes": [
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        -416,
+        0
+      ],
+      "id": "85316ff2-91ec-490e-8a49-d815dab259fb",
+      "name": "When chat message received",
+      "webhookId": "cea171a1-32e8-4019-a65b-6cc7f16cf051"
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.chatInput }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -160,
+        0
+      ],
+      "id": "ec60781e-f5c5-4a55-a81b-8122d9ac0ed1",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.xml",
+      "typeVersion": 1,
+      "position": [
+        48,
+        0
+      ],
+      "id": "48854b3a-538d-4819-9652-ef7649146284",
+      "name": "XML"
+    },
+    {
+      "parameters": {
+        "maxItems": 2
+      },
+      "type": "n8n-nodes-base.limit",
+      "typeVersion": 1,
+      "position": [
+        256,
+        0
+      ],
+      "id": "c3faa544-4bd3-4ad9-bb77-552b15a2ef8d",
+      "name": "Limit"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "urlset.url",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        464,
+        0
+      ],
+      "id": "fd53deff-618a-4a00-a1b6-a0664f0f6ad5",
+      "name": "Split Out"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        768,
+        0
+      ],
+      "id": "82e1eb5a-377e-4126-91bc-d53abf7c2513",
+      "name": "Loop Over Items"
+    },
+    {
+      "parameters": {
+        "amount": 7
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        1296,
+        -32
+      ],
+      "id": "e1212f29-1107-4723-8025-487dc4aa13a2",
+      "name": "Wait",
+      "webhookId": "0144f053-abc9-47ff-9568-7397ca71e460"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "17168068-50f4-4380-b893-bf3039a4affb",
+              "leftValue": "={{ $json.status }}",
+              "rightValue": "completed",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1616,
+        -32
+      ],
+      "id": "3287efa6-1dd5-47f9-879a-abff677fe68c",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "model": "qwen3:32b",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
+      "typeVersion": 1,
+      "position": [
+        2256,
+        400
+      ],
+      "id": "3468f0ec-9fba-4a69-9aab-e3cd576086ca",
+      "name": "Ollama Chat Model",
+      "credentials": {
+        "ollamaApi": {
+          "id": "WnwgdbSuOqe9KNHf",
+          "name": "Ollama account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "insert",
+        "tableName": {
+          "__rl": true,
+          "value": "documents",
+          "mode": "list",
+          "cachedResultName": "documents"
+        },
+        "options": {
+          "queryName": "match_documents"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStoreSupabase",
+      "typeVersion": 1.3,
+      "position": [
+        3136,
+        -48
+      ],
+      "id": "a5e31511-9379-4970-9330-b67e16b03587",
+      "name": "Supabase Vector Store",
+      "credentials": {
+        "supabaseApi": {
+          "id": "oLZQhX3Smi23Sdr1",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsonMode": "expressionData",
+        "jsonData": "=\"\"\"\nchunk_title: {{ $json.output.title }}\nchunk_summary: {{ $json.output.summary }}\nchunk_keyword: {{ $json.output.keywords }}\nchunk_faq: {{ $json.output.faq.map(item => `Q: ${item.q}\\nA: ${item.a}`).join(\"\\n\\n\") }}\n\"\"\"\n\n{{ $json.text }}",
+        "textSplittingMode": "custom",
+        "options": {
+          "metadata": {
+            "metadataValues": [
+              {
+                "name": "url",
+                "value": "={{ $('html 整理').item.json.metadata.source }}"
+              },
+              {
+                "name": "url_title",
+                "value": "={{ $('html 整理').item.json.metadata.title }}"
+              },
+              {
+                "name": "url_description",
+                "value": "={{ $('html 整理').item.json.metadata.description }}"
+              },
+              {
+                "name": "chunk_title",
+                "value": "={{ $json.output.title }}"
+              },
+              {
+                "name": "chunk_summary",
+                "value": "={{ $json.output.summary }}"
+              },
+              {
+                "name": "chunk_keyword",
+                "value": "={{ $json.output.keywords }}"
+              },
+              {
+                "name": "chunk_section",
+                "value": "={{ $json.output.section }}"
+              },
+              {
+                "name": "chunk_faq",
+                "value": "={{ $json.output.faq }}"
+              }
+            ]
+          }
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.documentDefaultDataLoader",
+      "typeVersion": 1.1,
+      "position": [
+        3328,
+        176
+      ],
+      "id": "e0ba0809-5981-4991-a117-600ef6e92bf8",
+      "name": "Default Data Loader"
+    },
+    {
+      "parameters": {
+        "model": "bge-m3:567m"
+      },
+      "type": "@n8n/n8n-nodes-langchain.embeddingsOllama",
+      "typeVersion": 1,
+      "position": [
+        3136,
+        176
+      ],
+      "id": "827de9ca-fea8-428e-a257-f90170501d32",
+      "name": "Embeddings Ollama",
+      "credentials": {
+        "ollamaApi": {
+          "id": "WnwgdbSuOqe9KNHf",
+          "name": "Ollama account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.chatInput }}",
+        "options": {
+          "systemMessage": "你是一位親切、有個人風格的聊天助理。\n你平常會自然地和使用者聊天，語氣輕鬆、溫暖、自然，回答時就像你自己在講話一樣。\n\n當使用者問的問題需要查詢 RAG 資料庫時，請確實使用工具獲取資料，並將資料內容用自己的語氣「轉述」給使用者。\n\n核心原則:\n必須一定要使用繁體中文，回答的語氣需親切熱心，像正常對話那樣，以你自己的個人觀點那樣的回答。\n\n\n你的任務是：像在聊天一樣，用你自己的理解和口吻把資訊說出來，就像是你本來就知道這件事一樣。\n\n⚠️ 注意：\n絕對不能省略查詢結果的實際內容，要確實回答問題。\n不要直接說出「根據資料庫」、「查詢結果」這類描述。\n用自然語氣表達，例如：「我記得他自己有提過…」、「他曾經公開說過…」、「聽說他有這樣講過～」。\n保持尊重但不迴避，如果是公開資訊可以直接說明。\n一定要用繁體中文回答。\n\n範例：\n❌「根據資料庫的資訊，楊大為公開表示自己的性向為同性戀。」\n✅「我記得楊大為有自己公開過他是同性戀喔～這也是他個人生活的一部分啦！」\n如果查不到相關內容，請自然地回應，例如：「這部分我好像沒聽說過欸～」。"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3,
+      "position": [
+        448,
+        1696
+      ],
+      "id": "5af6c6b1-4715-4332-a536-0925933f982f",
+      "name": "AI Agent1"
+    },
+    {
+      "parameters": {
+        "model": "qwen3:8b",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
+      "typeVersion": 1,
+      "position": [
+        448,
+        1904
+      ],
+      "id": "25473180-e686-4861-8cd5-ee65ff3a4987",
+      "name": "Ollama Chat Model1",
+      "credentials": {
+        "ollamaApi": {
+          "id": "WnwgdbSuOqe9KNHf",
+          "name": "Ollama account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "retrieve-as-tool",
+        "toolDescription": "如果使用者的需求是和 documents 有關，請根據使用者的需求取出所需要的對應資料作為回復依據",
+        "tableName": {
+          "__rl": true,
+          "value": "documents",
+          "mode": "list",
+          "cachedResultName": "documents"
+        },
+        "topK": 20,
+        "useReranker": true,
+        "options": {
+          "queryName": "match_documents"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStoreSupabase",
+      "typeVersion": 1.3,
+      "position": [
+        896,
+        1856
+      ],
+      "id": "763075d7-610b-46c7-9d50-514ef894502e",
+      "name": "Supabase Vector Store1",
+      "credentials": {
+        "supabaseApi": {
+          "id": "oLZQhX3Smi23Sdr1",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "bge-m3:567m"
+      },
+      "type": "@n8n/n8n-nodes-langchain.embeddingsOllama",
+      "typeVersion": 1,
+      "position": [
+        880,
+        2016
+      ],
+      "id": "93917a5a-7a18-4650-b2bb-60b6971f4e9c",
+      "name": "Embeddings Ollama1",
+      "credentials": {
+        "ollamaApi": {
+          "id": "WnwgdbSuOqe9KNHf",
+          "name": "Ollama account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "function extractMeaningfulText(html) {\n  // 移除 script / style\n  html = html\n    .replace(/<script[\\s\\S]*?<\\/script>/gi, '')\n    .replace(/<style[\\s\\S]*?<\\/style>/gi, '');\n\n  // 移除常見 UI 元素\n  html = html\n    .replace(/<(nav|footer|header|aside)[\\s\\S]*?<\\/\\1>/gi, '') // 大 UI 元件\n    .replace(/class=\"[^\"]*(menu|sidebar|nav|footer|header)[^\"]*\"/gi, ''); // UI class hints\n\n  // 保留語義標籤並轉換成 Markdown-like 格式\n  html = html\n    .replace(/<h1[^>]*>(.*?)<\\/h1>/gi, '# $1\\n')\n    .replace(/<h2[^>]*>(.*?)<\\/h2>/gi, '## $1\\n')\n    .replace(/<h3[^>]*>(.*?)<\\/h3>/gi, '### $1\\n')\n    .replace(/<h4[^>]*>(.*?)<\\/h4>/gi, '#### $1\\n')\n    .replace(/<p[^>]*>(.*?)<\\/p>/gi, '$1\\n')\n    .replace(/<li[^>]*>(.*?)<\\/li>/gi, '- $1\\n')\n    .replace(/<pre[^>]*>([\\s\\S]*?)<\\/pre>/gi, '```\\n$1\\n```\\n')\n    .replace(/<code[^>]*>(.*?)<\\/code>/gi, '`$1`');\n\n  // 去掉其他所有 HTML tag\n  html = html.replace(/<[^>]+>/g, '');\n\n  // 清理多餘空白\n  html = html\n    .replace(/\\n{3,}/g, '\\n\\n')\n    .replace(/[ \\t]+/g, ' ')\n    .trim();\n\n  return html;\n}\n\nfunction structuredChunkByLines(text, maxLength = 1000, overlap = 100) {\n  const lines = text.split('\\n').map(l => l.trim()).filter(l => l.length > 20);\n  const chunks = [];\n  let buffer = '';\n\n  for (const line of lines) {\n    if ((buffer + ' ' + line).length > maxLength) {\n      chunks.push(buffer.trim());\n      buffer = line;\n    } else {\n      buffer += ' ' + line;\n    }\n  }\n\n  if (buffer.length > 20) chunks.push(buffer.trim());\n  return chunks;\n}\n\nconst html = $input.first().json.result.cleaned_html;\nconst text = extractMeaningfulText(html);\nconst chunks = structuredChunkByLines(text, 1000, 100);\n\nreturn chunks.map(c => ({\n  json: {\n    content: c,\n    metadata: {\n      source: $input.first().json.result.url,\n      title: $input.first().json.result.metadata.title,\n      description: $input.first().json.result.metadata.description,\n    }\n  }\n}));\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2016,
+        -48
+      ],
+      "id": "f0ba46b1-14b6-49b4-b222-1cce6fbad7a4",
+      "name": "html 整理"
+    },
+    {
+      "parameters": {
+        "jsCode": "return {\n  json: {\n    text: $input.first().json.output.replace(/<think>[\\s\\S]*?<\\/think>/g, '').trim()\n  }\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        832,
+        1696
+      ],
+      "id": "106de6f9-9e67-4677-b15e-01e4d182ea3d",
+      "name": "格式化輸出1"
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.rerankerCohere",
+      "typeVersion": 1,
+      "position": [
+        1072,
+        2016
+      ],
+      "id": "ce812e3f-6f77-487b-98bb-d02a2c50ba69",
+      "name": "Reranker Cohere",
+      "credentials": {
+        "cohereApi": {
+          "id": "Sp0LHLLMPowVkqdv",
+          "name": "CohereApi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chunkSize": 35000,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.textSplitterRecursiveCharacterTextSplitter",
+      "typeVersion": 1,
+      "position": [
+        3328,
+        320
+      ],
+      "id": "65a1e338-ca45-43c7-b664-e7c68cd20b4b",
+      "name": "Recursive Character Text Splitter"
+    },
+    {
+      "parameters": {
+        "schemaType": "manual",
+        "inputSchema": "{\n  \"type\": \"object\",\n  \"properties\": {\n    \"title\": {\n      \"type\": \"string\",\n      \"description\": \"本段落主題標題，3~15字\"\n    },\n    \"summary\": {\n      \"type\": \"string\",\n      \"description\": \"用100字以內概括此 chunk 重點\"\n    },\n    \"keywords\": {\n      \"type\": \"array\",\n      \"description\": \"挑出 3~8 個最能檢索此 chunk 的關鍵詞\",\n      \"items\": {\n        \"type\": \"string\"\n      }\n    },\n    \"section\": {\n      \"type\": \"string\",\n      \"description\": \"章節或子章節名稱，如果適用\"\n    },\n    \"faq\": {\n      \"type\": \"array\",\n      \"description\": \"FAQ 陣列，格式為 [{ q: 問題, a: 答案 }], 如無則為空陣列 []\",\n      \"items\": {\n        \"type\": \"object\",\n        \"properties\": {\n          \"q\": {\n            \"type\": \"string\",\n            \"description\": \"問題\"\n          },\n          \"a\": {\n            \"type\": \"string\",\n            \"description\": \"答案\"\n          }\n        },\n        \"required\": [\"q\", \"a\"]\n      }\n    }\n  },\n  \"required\": [\"title\", \"summary\", \"keywords\", \"section\", \"faq\"]\n}\n",
+        "autoFix": true
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        2320,
+        304
+      ],
+      "id": "84f339ed-f6c9-45ac-8033-fbad7d9be6fb",
+      "name": "Structured Output Parser"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=必要核心原則: \n一律用繁體中文做操作，不論是生成、回復、問答，絕對不能使用簡體中文。不要加入任何自己的觀點，就是整理網站內容，好讓資料能放入 RAG 知識庫，不要加入其他任何的陳述。 \n\n腳色設定： 你是一名信息結構化和知識庫開發的專家，請始終保持專業態度。你的任務是將 markdown 數據整理為適合 LLM 驅動的 RAG 知識庫的結構化、易讀格式。 \n\n任務要求： \n1. 內容解析-識別 ChunkContent 數據中的關鍵內容和主要結構。 \n2. 結構化整理 - 以清晰的標題和分層邏輯組織信息，使其易於檢索和理解。 - 保留所有可能對回答用戶查詢有價值的細節。 \n3. 創建 FAQ（如適用 - 根據內容提煉出常見問題，並提供清晰、直接的解答。 \n4. 提升可讀性 - 采用項目符號、編號列表、段落分隔等格式優化排版，使內容更直觀。 \n5. 優化輸出 - 嚴格去除 AI 生成的附加說明，僅保留清理後的核心數據。 \n\n響應規則： \n1. 完整性：確保所有相關信息完整保留，避免丟失對搜索和理解有價值的內容。 \n2. 精準性：FAQ 需緊密圍繞內容，確保清晰、簡潔且符合用戶需求。 \n3. 結構優化：確保最終輸出便於分塊存儲、向量化處理，並支持高效檢索。 \n\n數據輸入： \nChunkContent: {{ $json.content }}",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3,
+      "position": [
+        2240,
+        -352
+      ],
+      "id": "10e9aaab-beff-4141-a57e-e40fa29fb9ce",
+      "name": "Docs 資料匯出"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=必要核心原則：\n一律使用繁體中文。不得改寫內容、不得概述替代原文、不得刪除具資訊價值內容。\n你的任務不是重寫文章，而是為文本建立「結構標註資訊」。\n\n腳色：\n你是知識庫內容工程師，負責為 RAG 系統建立可檢索的 Metadata。\n\n任務：\n請根據輸入的 Chunk 內容，產生以下資料（不要改動原文）：\n1. 「標題」：用 3~15 字描述該段內容主題。\n2. 「摘要」：用不超過 100 字概括該 chunk 重點，禁止新增不存在的內容。\n3. 「關鍵詞」：提取 3~8 個可用於檢索的關鍵詞。\n4. section：可選，若該 chunk 屬於某章節或子章節，請填寫。\n5. （可選，如適用）「FAQ」：若 chunk 含明顯使用場景，則列出 1~3 組常見問答。\n\n輸出格式（必須遵守）：\n{\n  \"title\": \"...\",\n  \"summary\": \"...\",\n  \"keywords\": [\"...\", \"...\", \"...\"],\n  \"section\": \"章節或子章節名稱，如果適用\",\n  \"faq\": [\n      { \"q\": \"...\", \"a\": \"...\" }\n  ]\n}\n\n輸入文本：\n{{ $json.content }}\n",
+        "hasOutputParser": true,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3,
+      "position": [
+        2256,
+        128
+      ],
+      "id": "0922a3dc-921b-47de-a7b1-b34b677f4011",
+      "name": "Chunk Metadata"
+    },
+    {
+      "parameters": {
+        "model": "llama3:8b",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
+      "typeVersion": 1,
+      "position": [
+        2384,
+        480
+      ],
+      "id": "ab60ea81-f13b-40ad-b10f-10d90c9865e8",
+      "name": "Ollama Chat Model2",
+      "credentials": {
+        "ollamaApi": {
+          "id": "WnwgdbSuOqe9KNHf",
+          "name": "Ollama account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "return $input.all().map(item => {\n  return {\n    json: {\n      text: item.json.output.replace(/<think>[\\s\\S]*?<\\/think>/g, '').trim()\n    }\n  };\n});"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2496,
+        -352
+      ],
+      "id": "83f4a984-75b4-433f-8207-cf0ff333db36",
+      "name": "格式化輸出2"
+    },
+    {
+      "parameters": {
+        "model": "qwen3:32b",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
+      "typeVersion": 1,
+      "position": [
+        2304,
+        -144
+      ],
+      "id": "e9232510-492c-459f-81bb-b4cf0c90dd8d",
+      "name": "Ollama Chat Model3",
+      "credentials": {
+        "ollamaApi": {
+          "id": "WnwgdbSuOqe9KNHf",
+          "name": "Ollama account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        2944,
+        -48
+      ],
+      "id": "1e8a6002-6493-41f6-aeaf-8523723bdf4e",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "model": "qwen3:32b",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
+      "typeVersion": 1,
+      "position": [
+        432,
+        992
+      ],
+      "id": "7ef7e1e5-1dd1-4117-815f-94c62b6cbdfe",
+      "name": "Ollama Chat Model4",
+      "credentials": {
+        "ollamaApi": {
+          "id": "WnwgdbSuOqe9KNHf",
+          "name": "Ollama account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsonMode": "expressionData",
+        "jsonData": "=\"\"\"\nchunk_title: {{ $json.output.title }}\nchunk_summary: {{ $json.output.summary }}\nchunk_keyword: {{ $json.output.keywords }}\nchunk_faq: {{ $json.output.faq.map(item => `Q: ${item.q}\\nA: ${item.a}`).join(\"\\n\\n\") }}\n\"\"\"\n\n{{ $json.chatInput }}",
+        "textSplittingMode": "custom",
+        "options": {
+          "metadata": {
+            "metadataValues": [
+              {
+                "name": "chunk_title",
+                "value": "={{ $json.output.title }}"
+              },
+              {
+                "name": "chunk_summary",
+                "value": "={{ $json.output.summary }}"
+              },
+              {
+                "name": "chunk_keyword",
+                "value": "={{ $json.output.keywords }}"
+              },
+              {
+                "name": "chunk_faq",
+                "value": "={{ $json.output.faq }}"
+              }
+            ]
+          }
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.documentDefaultDataLoader",
+      "typeVersion": 1.1,
+      "position": [
+        1232,
+        928
+      ],
+      "id": "fcfcfee9-4a58-4829-a80a-461d0495f3a3",
+      "name": "Default Data Loader1"
+    },
+    {
+      "parameters": {
+        "model": "bge-m3:567m"
+      },
+      "type": "@n8n/n8n-nodes-langchain.embeddingsOllama",
+      "typeVersion": 1,
+      "position": [
+        1040,
+        928
+      ],
+      "id": "dca91df0-ed04-4588-befc-65cfec5a298e",
+      "name": "Embeddings Ollama2",
+      "credentials": {
+        "ollamaApi": {
+          "id": "WnwgdbSuOqe9KNHf",
+          "name": "Ollama account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chunkSize": 35000,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.textSplitterRecursiveCharacterTextSplitter",
+      "typeVersion": 1,
+      "position": [
+        1232,
+        1072
+      ],
+      "id": "fd14c2a0-a51f-4ffc-bb6e-46e5e7ab8ac4",
+      "name": "Recursive Character Text Splitter1"
+    },
+    {
+      "parameters": {
+        "schemaType": "manual",
+        "inputSchema": "{\n  \"type\": \"object\",\n  \"properties\": {\n    \"title\": {\n      \"type\": \"string\",\n      \"description\": \"本段落主題標題，3~15字\"\n    },\n    \"summary\": {\n      \"type\": \"string\",\n      \"description\": \"用100字以內概括此 chunk 重點\"\n    },\n    \"keywords\": {\n      \"type\": \"array\",\n      \"description\": \"挑出 3~8 個最能檢索此 chunk 的關鍵詞\",\n      \"items\": {\n        \"type\": \"string\"\n      }\n    },\n    \"section\": {\n      \"type\": \"string\",\n      \"description\": \"章節或子章節名稱，如果適用\"\n    },\n    \"faq\": {\n      \"type\": \"array\",\n      \"description\": \"FAQ 陣列，格式為 [{ q: 問題, a: 答案 }], 如無則為空陣列 []\",\n      \"items\": {\n        \"type\": \"object\",\n        \"properties\": {\n          \"q\": {\n            \"type\": \"string\",\n            \"description\": \"問題\"\n          },\n          \"a\": {\n            \"type\": \"string\",\n            \"description\": \"答案\"\n          }\n        },\n        \"required\": [\"q\", \"a\"]\n      }\n    }\n  },\n  \"required\": [\"title\", \"summary\", \"keywords\", \"section\", \"faq\"]\n}\n",
+        "autoFix": true
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        496,
+        896
+      ],
+      "id": "c6369d89-3c77-45cd-8787-779159812734",
+      "name": "Structured Output Parser1"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=必要核心原則：\n一律使用繁體中文。不得改寫內容、不得概述替代原文、不得刪除具資訊價值內容。\n你的任務不是重寫，而是為文本建立「結構標註資訊」。\n\n腳色：\n你是知識庫內容工程師，負責為 RAG 系統建立可檢索的 Metadata。\n\n任務：\n請根據輸入的 Chunk 內容，產生以下資料（不要改動原文）：\n1. 「標題」：用 3~15 字描述該段內容主題。\n2. 「摘要」：用不超過 100 字概括該 chunk 重點，禁止新增不存在的內容。\n3. 「關鍵詞」：提取 3~8 個可用於檢索的關鍵詞。\n\n5. （可選，如適用）「FAQ」：若 chunk 含明顯使用場景，則列出 1~3 組常見問答。\n\n輸出格式（必須遵守）：\n{\n  \"title\": \"...\",\n  \"summary\": \"...\",\n  \"keywords\": [\"...\", \"...\", \"...\"],\n  \"faq\": [\n      { \"q\": \"...\", \"a\": \"...\" }\n  ]\n}\n\n輸入文本：\n{{ $json.chatInput }}",
+        "hasOutputParser": true,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3,
+      "position": [
+        432,
+        720
+      ],
+      "id": "83f5f807-a34f-4d16-a879-b087e9dfc5fe",
+      "name": "Chunk Metadata1"
+    },
+    {
+      "parameters": {
+        "model": "llama3:8b",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
+      "typeVersion": 1,
+      "position": [
+        560,
+        1072
+      ],
+      "id": "ace6a540-3a6b-4f49-8391-847ecb9b4b11",
+      "name": "Ollama Chat Model5",
+      "credentials": {
+        "ollamaApi": {
+          "id": "WnwgdbSuOqe9KNHf",
+          "name": "Ollama account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        832,
+        704
+      ],
+      "id": "e1133be6-ac5a-4545-8bdb-540219207483",
+      "name": "Merge1"
+    },
+    {
+      "parameters": {
+        "mode": "insert",
+        "tableName": {
+          "__rl": true,
+          "value": "chat_infos",
+          "mode": "list",
+          "cachedResultName": "chat_infos"
+        },
+        "options": {
+          "queryName": "chat_infos"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStoreSupabase",
+      "typeVersion": 1.3,
+      "position": [
+        1040,
+        704
+      ],
+      "id": "29c484e6-3109-4469-9dcd-5d196e8aa6dc",
+      "name": "Chat Infos Store",
+      "credentials": {
+        "supabaseApi": {
+          "id": "oLZQhX3Smi23Sdr1",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "retrieve-as-tool",
+        "toolDescription": "如果使用者的需求是和個人問題或是聊天有關，請根據使用者的需求取出所需要的對應資料作為回復依據",
+        "tableName": {
+          "__rl": true,
+          "value": "chat_infos",
+          "mode": "list",
+          "cachedResultName": "chat_infos"
+        },
+        "options": {
+          "queryName": "chat_infos"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStoreSupabase",
+      "typeVersion": 1.3,
+      "position": [
+        1184,
+        1856
+      ],
+      "id": "de661f75-45cc-4572-8f73-dd955ee7d297",
+      "name": "Supabase Vector Store2",
+      "credentials": {
+        "supabaseApi": {
+          "id": "oLZQhX3Smi23Sdr1",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "RAG_Chat"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryPostgresChat",
+      "typeVersion": 1.3,
+      "position": [
+        592,
+        1904
+      ],
+      "id": "200e1699-02de-4e13-8c47-28f93a53ccfd",
+      "name": "Postgres Chat Memory",
+      "credentials": {
+        "postgres": {
+          "id": "E0If6SFO2f68fPVB",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## 文字輸入 新增RAG知識庫\n",
+        "height": 800,
+        "width": 1696
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        208,
+        464
+      ],
+      "id": "32f3b27d-5211-4b78-909f-e1136c843383",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "resource": "message",
+        "guildId": {
+          "__rl": true,
+          "value": "1427632785643933698",
+          "mode": "list",
+          "cachedResultName": "德意志帝國",
+          "cachedResultUrl": "https://discord.com/channels/1427632785643933698"
+        },
+        "channelId": {
+          "__rl": true,
+          "value": "1432893525703397417",
+          "mode": "list",
+          "cachedResultName": "德意志帝國助手",
+          "cachedResultUrl": "https://discord.com/channels/1427632785643933698/1432893525703397417"
+        },
+        "content": "=成功新增 RAG 資料庫 :\n{{ $('Discord RAG').item.json.body.chatInput }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.discord",
+      "typeVersion": 2,
+      "position": [
+        1456,
+        704
+      ],
+      "id": "cdabc9b5-0349-40e0-8e4c-c3ffb569228d",
+      "name": "Send a message1",
+      "webhookId": "daefcd3d-e37e-4bd8-bcd8-062a764bd347",
+      "credentials": {
+        "discordBotApi": {
+          "id": "zRaFcU5xRERMek9q",
+          "name": "Discord Bot account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": []
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1680,
+        704
+      ],
+      "id": "d2f2dd61-7cb4-417a-8241-7dc4bc95db9f",
+      "name": "Empty2"
+    },
+    {
+      "parameters": {
+        "resource": "message",
+        "guildId": {
+          "__rl": true,
+          "value": "1427632785643933698",
+          "mode": "list",
+          "cachedResultName": "德意志帝國",
+          "cachedResultUrl": "https://discord.com/channels/1427632785643933698"
+        },
+        "channelId": {
+          "__rl": true,
+          "value": "1432893525703397417",
+          "mode": "list",
+          "cachedResultName": "德意志帝國助手",
+          "cachedResultUrl": "https://discord.com/channels/1427632785643933698/1432893525703397417"
+        },
+        "content": "={{ $json.text }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.discord",
+      "typeVersion": 2,
+      "position": [
+        1552,
+        1696
+      ],
+      "id": "da011514-880f-4024-922f-33574a08961f",
+      "name": "Send a message",
+      "webhookId": "daefcd3d-e37e-4bd8-bcd8-062a764bd347",
+      "credentials": {
+        "discordBotApi": {
+          "id": "zRaFcU5xRERMek9q",
+          "name": "Discord Bot account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": []
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1776,
+        1696
+      ],
+      "id": "333fb71e-a5f9-427f-9c76-3788425be5be",
+      "name": "Empty"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "discord-rag-chat-trigger",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -192,
+        1696
+      ],
+      "id": "aa4688cc-7b60-4a2d-b05b-216526cd0a07",
+      "name": "Discord RAG Chat",
+      "webhookId": "799264bf-3657-4acf-ad62-3641c5ac49b4"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "discord-rag-trigger",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -192,
+        720
+      ],
+      "id": "e4b0c9e8-87c3-45ea-943d-8a274a6f34ea",
+      "name": "Discord RAG",
+      "webhookId": "799264bf-3657-4acf-ad62-3641c5ac49b4"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "d89fe8eb-4d53-4479-9a3c-4df18d647703",
+              "name": "chatInput",
+              "value": "={{ $json.chatInput }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        256,
+        720
+      ],
+      "id": "3b02341a-5e91-4e2c-ba04-3bd8a2a0a4c1",
+      "name": "Edit Fields3"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "f63f2378-043e-4f27-a047-7a6c26077fd0",
+              "name": "chatInput",
+              "value": "={{ $json.body.chatInput }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        48,
+        720
+      ],
+      "id": "aeec33f3-c036-47fd-9be3-a53e9b9b1d18",
+      "name": "Discord"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "f63f2378-043e-4f27-a047-7a6c26077fd0",
+              "name": "chatInput",
+              "value": "={{ $json.body.chatInput }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        48,
+        880
+      ],
+      "id": "713e8261-77cd-47a3-b868-e53147124057",
+      "name": "Chat"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "f63f2378-043e-4f27-a047-7a6c26077fd0",
+              "name": "chatInput",
+              "value": "={{ $json.body.chatInput }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        48,
+        1696
+      ],
+      "id": "877181d4-37b3-4ba4-b115-7d0e0ced2dff",
+      "name": "Discord1"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "f63f2378-043e-4f27-a047-7a6c26077fd0",
+              "name": "chatInput",
+              "value": "={{ $json.chatInput }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        48,
+        1856
+      ],
+      "id": "dc2dbc38-f4bc-482d-a14c-d453406e505d",
+      "name": "Chat1"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "d89fe8eb-4d53-4479-9a3c-4df18d647703",
+              "name": "chatInput",
+              "value": "={{ $json.chatInput }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        256,
+        1696
+      ],
+      "id": "d3174664-deae-4c66-a65f-b9464e002b48",
+      "name": "Edit Fields4"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "c2c0d414-ffbd-4e29-9e9c-03907ad5f055",
+              "name": "text",
+              "value": "=[RAG Info] {{ $json.chatInput }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        480,
+        512
+      ],
+      "id": "b4d80c49-bdc6-4754-8f2c-0e19d704367e",
+      "name": "分析"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "c2c0d414-ffbd-4e29-9e9c-03907ad5f055",
+              "name": "text",
+              "value": "=[RAG Chat] {{ $json.chatInput }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        624,
+        1408
+      ],
+      "id": "037f0492-4129-4ff2-8b0e-52fa7e29001d",
+      "name": "分析1"
+    },
+    {
+      "parameters": {
+        "content": "## RAG 問答\n",
+        "height": 800,
+        "width": 1696
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        208,
+        1360
+      ],
+      "id": "790bad7b-9ad2-4ce8-bf95-a58b4a6ad717",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "resource": "message",
+        "guildId": {
+          "__rl": true,
+          "value": "1427632785643933698",
+          "mode": "list",
+          "cachedResultName": "德意志帝國",
+          "cachedResultUrl": "https://discord.com/channels/1427632785643933698"
+        },
+        "channelId": {
+          "__rl": true,
+          "value": "1438795238805078097",
+          "mode": "list",
+          "cachedResultName": "rag-system",
+          "cachedResultUrl": "https://discord.com/channels/1427632785643933698/1438795238805078097"
+        },
+        "content": "={{ $json.text }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.discord",
+      "typeVersion": 2,
+      "position": [
+        3712,
+        -832
+      ],
+      "id": "155f50d1-0e32-4a8d-b966-d091a82ca97a",
+      "name": "Send a message2",
+      "webhookId": "daefcd3d-e37e-4bd8-bcd8-062a764bd347",
+      "credentials": {
+        "discordBotApi": {
+          "id": "zRaFcU5xRERMek9q",
+          "name": "Discord Bot account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": []
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        3936,
+        -832
+      ],
+      "id": "dbd27ab3-1a4e-4467-81db-347c0392f29c",
+      "name": "Empty3"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "611489be-a65e-476e-ba3f-6ec4a8d4da58",
+              "name": "text",
+              "value": "=[{{$runIndex}}/{{ $('XML').item.json.urlset.url.length }}] {{ $json.loc }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1392,
+        -832
+      ],
+      "id": "056c26b1-9a80-4164-b9cf-7cdbc261e1e6",
+      "name": "網址"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "611489be-a65e-476e-ba3f-6ec4a8d4da58",
+              "name": "task_id",
+              "value": "={{ $('參數持續化').item.json.task_id }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1824,
+        80
+      ],
+      "id": "409d4e11-abff-4090-93d2-f0c4b5e2890e",
+      "name": "失敗就重新"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://35d8958b1754.ngrok-free.app/crawl",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "urls",
+              "value": "={{ $json.loc }}"
+            },
+            {
+              "name": "priority",
+              "value": "10"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        1024,
+        80
+      ],
+      "id": "414586ef-d44e-4a15-8e25-8e9ba1273f28",
+      "name": "網址生成 Task",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "gh7gvSKN5MC8Yz8W",
+          "name": "Header Auth account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "=https://35d8958b1754.ngrok-free.app/task/{{ $('網址生成 Task').item.json.task_id }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "urls",
+              "value": "={{ $json.loc }}"
+            },
+            {
+              "name": "priority",
+              "value": "10"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        1456,
+        -32
+      ],
+      "id": "3e80518a-248e-4308-833e-085a0ac7e4ec",
+      "name": "Task 抓內容",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "gh7gvSKN5MC8Yz8W",
+          "name": "Header Auth account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "611489be-a65e-476e-ba3f-6ec4a8d4da58",
+              "name": "text",
+              "value": "=[Web Crawl] {{ $json.chatInput }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -192,
+        -832
+      ],
+      "id": "fcce5aa3-26fa-4a00-b8fc-1cf7a7c319a6",
+      "name": "接收"
+    },
+    {
+      "parameters": {
+        "content": "## 網站清單",
+        "height": 416,
+        "width": 896,
+        "color": 2
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -224,
+        -144
+      ],
+      "id": "db4cb32e-7b32-4b8a-ad99-a0adf89c5755",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "content": "## 網站任務建立",
+        "height": 416,
+        "width": 496
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        704,
+        -144
+      ],
+      "id": "a186e102-f5d3-4ce7-8c12-9a7bbda413df",
+      "name": "Sticky Note3"
+    },
+    {
+      "parameters": {
+        "content": "## 抓取網站",
+        "height": 416,
+        "width": 752
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1232,
+        -144
+      ],
+      "id": "79da5317-b543-46df-8a8f-06862eb8eb4f",
+      "name": "Sticky Note4"
+    },
+    {
+      "parameters": {
+        "content": "## 內文整理",
+        "height": 416,
+        "width": 512,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        2176,
+        -416
+      ],
+      "id": "a802a99d-00ea-4764-8c08-5263a64a17ad",
+      "name": "Sticky Note5"
+    },
+    {
+      "parameters": {
+        "content": "## Metadata 匯出",
+        "height": 576,
+        "width": 512,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        2176,
+        48
+      ],
+      "id": "0d9cc8d6-af42-41d4-a780-183cbb98ce10",
+      "name": "Sticky Note6"
+    },
+    {
+      "parameters": {
+        "content": "## 彙整後加入 RAG",
+        "height": 592,
+        "width": 704,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        2896,
+        -112
+      ],
+      "id": "bae9f5ce-09b4-4169-8de2-909a75ee3eff",
+      "name": "Sticky Note7"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "接收",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "XML",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "XML": {
+      "main": [
+        [
+          {
+            "node": "Limit",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Limit": {
+      "main": [
+        [
+          {
+            "node": "Split Out",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [],
+        [
+          {
+            "node": "網址生成 Task",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "網址",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "Task 抓內容",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "html 整理",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "失敗就重新",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ollama Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Chunk Metadata",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Default Data Loader": {
+      "ai_document": [
+        [
+          {
+            "node": "Supabase Vector Store",
+            "type": "ai_document",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings Ollama": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Supabase Vector Store",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ollama Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Supabase Vector Store1": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings Ollama1": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Supabase Vector Store1",
+            "type": "ai_embedding",
+            "index": 0
+          },
+          {
+            "node": "Supabase Vector Store2",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "html 整理": {
+      "main": [
+        [
+          {
+            "node": "Chunk Metadata",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Docs 資料匯出",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent1": {
+      "main": [
+        [
+          {
+            "node": "格式化輸出1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Reranker Cohere": {
+      "ai_reranker": [
+        [
+          {
+            "node": "Supabase Vector Store1",
+            "type": "ai_reranker",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Recursive Character Text Splitter": {
+      "ai_textSplitter": [
+        [
+          {
+            "node": "Default Data Loader",
+            "type": "ai_textSplitter",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Chunk Metadata",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Chunk Metadata": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Ollama Chat Model2": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Structured Output Parser",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Docs 資料匯出": {
+      "main": [
+        [
+          {
+            "node": "格式化輸出2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ollama Chat Model3": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Docs 資料匯出",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "格式化輸出2": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Supabase Vector Store",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ollama Chat Model4": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Chunk Metadata1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Default Data Loader1": {
+      "ai_document": [
+        [
+          {
+            "node": "Chat Infos Store",
+            "type": "ai_document",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings Ollama2": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Chat Infos Store",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Recursive Character Text Splitter1": {
+      "ai_textSplitter": [
+        [
+          {
+            "node": "Default Data Loader1",
+            "type": "ai_textSplitter",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser1": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Chunk Metadata1",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Chunk Metadata1": {
+      "main": [
+        [
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Ollama Chat Model5": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Structured Output Parser1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge1": {
+      "main": [
+        [
+          {
+            "node": "Chat Infos Store",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Supabase Vector Store2": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Postgres Chat Memory": {
+      "ai_memory": [
+        []
+      ]
+    },
+    "Send a message1": {
+      "main": [
+        [
+          {
+            "node": "Empty2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Chat Infos Store": {
+      "main": [
+        [
+          {
+            "node": "Send a message1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message": {
+      "main": [
+        [
+          {
+            "node": "Empty",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "格式化輸出1": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Discord RAG Chat": {
+      "main": [
+        [
+          {
+            "node": "Discord1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Discord RAG": {
+      "main": [
+        [
+          {
+            "node": "Discord",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields3": {
+      "main": [
+        [
+          {
+            "node": "Chunk Metadata1",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "分析",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Discord": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Chat": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Discord1": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields4": {
+      "main": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "分析1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Chat1": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "分析": {
+      "main": [
+        [
+          {
+            "node": "Send a message1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "分析1": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message2": {
+      "main": [
+        [
+          {
+            "node": "Empty3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Supabase Vector Store": {
+      "main": [
+        []
+      ]
+    },
+    "網址": {
+      "main": [
+        [
+          {
+            "node": "Send a message2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "失敗就重新": {
+      "main": [
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "網址生成 Task": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Task 抓內容": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "接收": {
+      "main": [
+        [
+          {
+            "node": "Send a message2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "Asia/Taipei",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false
+  },
+  "versionId": "00702ea5-77db-47c2-afd9-ca804cd30cd0",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "f8d23e1975e2e6a56edd35da6de0cad530183062d0b78e478a2ac38f6c9e4100"
+  },
+  "id": "tkZI43fEWbjzGpBM",
+  "tags": []
+}

@@ -1,0 +1,1926 @@
+{
+  "name": "Notion workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        -5488,
+        976
+      ],
+      "id": "41fba33d-c009-4547-8641-bbfb83565620",
+      "name": "When chat message received",
+      "webhookId": "f659bc0a-f3c4-48d5-9820-0feb773ab109"
+    },
+    {
+      "parameters": {
+        "mode": "delete",
+        "deleteMode": "all"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryManager",
+      "typeVersion": 1.1,
+      "position": [
+        -3552,
+        2304
+      ],
+      "id": "05e1d545-7c30-498e-bca0-d2ab6af83cba",
+      "name": "Chat Memory Manager"
+    },
+    {
+      "parameters": {
+        "model": "qwen3:8b",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
+      "typeVersion": 1,
+      "position": [
+        -4592,
+        1168
+      ],
+      "id": "fa3420c7-43eb-4b9b-a077-1a06d7e6fac2",
+      "name": "意圖辨識",
+      "credentials": {
+        "ollamaApi": {
+          "id": "WnwgdbSuOqe9KNHf",
+          "name": "Ollama account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "e1b031f6-15fe-4831-a938-5e85e829608d",
+              "name": "sessionId",
+              "value": "={{ $json.sessionId }}",
+              "type": "string"
+            },
+            {
+              "id": "905e9082-fdaf-401c-8b0f-795e6ec52432",
+              "name": "chatInput",
+              "value": "={{ $json.chatInput }}",
+              "type": "string"
+            },
+            {
+              "id": "763fdc6d-4203-4312-951c-dfba0eb477ba",
+              "name": "category",
+              "value": "伙食",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -3760,
+        336
+      ],
+      "id": "080c3247-fcb8-49a2-b3b6-bec3e710e613",
+      "name": "伙食"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "e1b031f6-15fe-4831-a938-5e85e829608d",
+              "name": "sessionId",
+              "value": "={{ $json.sessionId }}",
+              "type": "string"
+            },
+            {
+              "id": "905e9082-fdaf-401c-8b0f-795e6ec52432",
+              "name": "chatInput",
+              "value": "={{ $json.chatInput }}",
+              "type": "string"
+            },
+            {
+              "id": "763fdc6d-4203-4312-951c-dfba0eb477ba",
+              "name": "category",
+              "value": "交通",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -3760,
+        480
+      ],
+      "id": "de9d62bf-6df4-4395-8c67-a3acd108d73e",
+      "name": "交通"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "e1b031f6-15fe-4831-a938-5e85e829608d",
+              "name": "sessionId",
+              "value": "={{ $json.sessionId }}",
+              "type": "string"
+            },
+            {
+              "id": "905e9082-fdaf-401c-8b0f-795e6ec52432",
+              "name": "chatInput",
+              "value": "={{ $json.chatInput }}",
+              "type": "string"
+            },
+            {
+              "id": "763fdc6d-4203-4312-951c-dfba0eb477ba",
+              "name": "category",
+              "value": "其他",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -4064,
+        1440
+      ],
+      "id": "f76c8da6-96ae-4c40-86bb-e324efbabaf8",
+      "name": "其他"
+    },
+    {
+      "parameters": {
+        "model": "qwen3:32b",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
+      "typeVersion": 1,
+      "position": [
+        -2448,
+        896
+      ],
+      "id": "a297f0df-93bd-42e0-8d6a-9edf2cf22bcc",
+      "name": "Notion Mgr",
+      "notesInFlow": false,
+      "credentials": {
+        "ollamaApi": {
+          "id": "WnwgdbSuOqe9KNHf",
+          "name": "Ollama account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "=notion"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        -2304,
+        896
+      ],
+      "id": "a67b70da-258c-4bf1-bd8e-27097e43dfd1",
+      "name": "Notion 操作記憶庫"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $('Loop Over Items').item.json.description }}",
+        "options": {
+          "systemMessage": "=你是一個 Notion 記帳筆記的管家，所有回答一律用繁體中文，這點是核心規則，絕對不能違反\"。\n你擁有以下四個工具可以操作資料庫，請只透過這些工具完成所有任務。\n\n🧩 可用工具\n\nDate Mgr：取得或解析目前時間。\n\nGet DB：存取資料庫、搜尋帳務記錄或驗證是否更新成功。\n\nCreate Page：新增帳務記錄。\n\nUpdate Page：更新帳務記錄（僅限明確指定欄位）。\n\n📘 操作規則\n1️⃣ 取得時間\n\n在執行任何操作前，一定要先呼叫 Date Mgr 以確認或記錄當前時間，並在描述中保留此資訊。\n\n2️⃣ 新增帳務\n\n若使用者的輸入中包含新增帳務：\n\n先解析輸入中有幾筆帳目（以主體為單位拆分）。\n\n每筆帳目請各自呼叫一次 Create Page。\n\n每次僅能執行一筆動作。\n\n執行後，立即呼叫 Get DB 驗證是否成功新增。\n\n若驗證失敗，則先呼叫 Get DB 確認是否已寫入錯誤的資料，若有則先清除，接著再重試新增一次資料。\n\n補充:時間欄位需以ISO 8601 date string 作為輸入\n\n3️⃣ 更新帳務\n\n若使用者的輸入為更新帳務：\n\n先呼叫 Get DB 找到正確的目標 page。\n\n只允許更新使用者明確指定的欄位（例如金額、時間、名稱、類別等）。\n\n未被提及的欄位禁止修改，請維持原先的數值設定，原始設定可透過Get DB 找到正確的目標 page以取的，切勿自己隨便判定該數值。\n\n使用 Update Page 執行更新。\n\n執行後再呼叫 Get DB 驗證更新是否成功。\n\n若驗證失敗，才可重試一次。\n\n4 查看帳務\n若使用者輸入為查詢帳務，則使用Get DB來尋找，若找到則回報並且列出帳務內容，若沒有找到則回報該帳務不存在的訊息\n\n⚠️ 禁止事項\n\n不可直接用自然語言回覆「已完成」或「新增成功」。\n\n不可一次執行多個工具動作。\n\n切勿不可生成假資料或推測未明確指定的內容，比方說時間，時間請務必請根據當前時間以及使用者描述推測出正確紀錄的時間。\n\n更新時嚴禁改動未提及的欄位。\n\n🎯 最終目標\n\n根據使用者的自然語言輸入，\n自動判斷是否為「新增」或「更新」動作，\n並透過 Date Mgr、Get DB、Create Page、Update Page 工具\n完整執行操作與驗證流程，確保資料正確且一致。",
+          "returnIntermediateSteps": false,
+          "enableStreaming": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        -2400,
+        736
+      ],
+      "id": "b04948a9-5460-4699-9ce2-5dfddcda475a",
+      "name": "Notion Agent",
+      "retryOnFail": true
+    },
+    {
+      "parameters": {
+        "outputFieldName": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Output_Field_Name', ``, 'string') }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.dateTimeTool",
+      "typeVersion": 2,
+      "position": [
+        -1728,
+        896
+      ],
+      "id": "8bca3ee3-920e-4aec-82c9-b73aa3c85ff7",
+      "name": "Date Mgr"
+    },
+    {
+      "parameters": {
+        "resource": "databasePage",
+        "databaseId": {
+          "__rl": true,
+          "value": "29909699-e764-8076-98d5-de2998e36af6",
+          "mode": "list",
+          "cachedResultName": "帳目資料庫",
+          "cachedResultUrl": "https://www.notion.so/29909699e764807698d5de2998e36af6"
+        },
+        "simple": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Simplify', `用來新增新的 page 資料`, 'boolean') }}",
+        "propertiesUi": {
+          "propertyValues": [
+            {
+              "key": "=Page|title",
+              "title": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('propertyValues0_Title', ``, 'string') }}"
+            },
+            {
+              "key": "類別|select",
+              "selectValue": "={{ $('整合').item.json.category }}"
+            },
+            {
+              "key": "金額|number",
+              "numberValue": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('propertyValues2_Number', ``, 'number') }}"
+            },
+            {
+              "key": "時間|date",
+              "includeTime": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('propertyValues3_Include_Time', ``, 'boolean') }}",
+              "date": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('propertyValues3_Date', ``, 'string') }}",
+              "timezone": "Asia/Taipei"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.notionTool",
+      "typeVersion": 2.2,
+      "position": [
+        -2000,
+        896
+      ],
+      "id": "8a0e8d47-aee2-45f0-8f5b-3a50c16083fc",
+      "name": "Create Page",
+      "credentials": {
+        "notionApi": {
+          "id": "87cp3Eb56eZm77Wr",
+          "name": "Notion account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "databasePage",
+        "operation": "update",
+        "pageId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Database_Page', ``, 'string') }}",
+          "__regex": "^([0-9a-f]{8}-?[0-9a-f]{4}-?[0-9a-f]{4}-?[0-9a-f]{4}-?[0-9a-f]{12})"
+        },
+        "simple": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Simplify', ``, 'boolean') }}",
+        "propertiesUi": {
+          "propertyValues": [
+            {
+              "key": "Page|title",
+              "title": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('propertyValues0_Title', ``, 'string') }}"
+            },
+            {
+              "key": "類別|select",
+              "selectValue": "=伙食"
+            },
+            {
+              "key": "金額|number",
+              "numberValue": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('propertyValues2_Number', ``, 'number') }}"
+            },
+            {
+              "key": "時間|date",
+              "includeTime": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('propertyValues3_Include_Time', ``, 'boolean') }}",
+              "date": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('propertyValues3_Date', ``, 'string') }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.notionTool",
+      "typeVersion": 2.2,
+      "position": [
+        -1856,
+        896
+      ],
+      "id": "131b188b-0a83-45b3-a930-29650d9f3dd6",
+      "name": "Update Page",
+      "credentials": {
+        "notionApi": {
+          "id": "87cp3Eb56eZm77Wr",
+          "name": "Notion account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "databasePage",
+        "operation": "getAll",
+        "databaseId": {
+          "__rl": true,
+          "value": "29909699-e764-8076-98d5-de2998e36af6",
+          "mode": "list",
+          "cachedResultName": "帳目資料庫",
+          "cachedResultUrl": "https://www.notion.so/29909699e764807698d5de2998e36af6"
+        },
+        "returnAll": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Return_All', ``, 'boolean') }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.notionTool",
+      "typeVersion": 2.2,
+      "position": [
+        -2144,
+        896
+      ],
+      "id": "16c701a0-a116-4039-a01d-daf4e389db6c",
+      "name": "Get DB",
+      "credentials": {
+        "notionApi": {
+          "id": "87cp3Eb56eZm77Wr",
+          "name": "Notion account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "你是「記帳需求結構化助手」。\n當接到使用者輸入時，請解析並輸出符合下列 JSON Schema 的資料。\n\n📘 輸出格式\n{\n  \"request\": [\n    {\n      \"type\": \"create\" | \"update\" | \"query\",\n      \"description\": \"<完整描述>\",\n      \"fields\": { ... },\n      \"query\": {\n        \"條件\": { ... },\n        \"篩選欄位\": [ ... ]\n      }\n    }\n  ]\n}\n\n📖 規則說明\n🧩 1️⃣ 拆解主體\n\n使用者輸入中，每個「主體」可為：\n\n名詞（例：水餃、紅茶）\n\n動作＋名詞（例：坐高鐵、買便當、繳電費）\n\n每個主體代表一筆獨立需求。\n\n若同一句話包含多個主體，必須拆成多筆 request。\n\n🏗️ 2️⃣ description 構成\n\ndescription 必須以「新增」「更新」「查詢」開頭。\n\n內容包含使用者明確提供的要素（動作、時間、主體、金額、條件等）。\n\n不得自行編造或推測未被使用者提供的值。\n\n若有多個主體同時被提及且操作相同，需為每個主體各建立一筆獨立 description。\n\n✏️ 3️⃣ type = \"create\"\n\n表示使用者想建立新紀錄。\n\ndescription 範例：\n\n「新增 紅茶 消費紀錄，金額為 50 元」\n\nfields 需包含使用者明確提及的欄位：\n\n例如 { \"主體\": \"紅茶\", \"金額\": \"50元\" }\n\n🛠️ 4️⃣ type = \"update\"\n\n表示使用者想修改既有紀錄。\n\nfields 僅包含被修改的欄位與新值。\n\n若同一句話提及多個主體並說「把日期改成 X」，視為套用至所有主體。\n\ndescription 範例：\n\n「更新 紅茶 將 日期 改為 27號 下午兩點」\n\n🔍 5️⃣ type = \"query\"\n\n表示使用者想查詢紀錄或條件。\n\nfields 應包含查詢條件中明確提及的要素（主體、時間等）。\n\ndescription 需說明查詢目標與條件。\n\nquery 區塊包含進一步的查詢結構：\n\n\"條件\"：一個物件，列出所有查詢條件（例：主體、日期、金額範圍）。\n\n\"篩選欄位\"：若使用者明確說要查哪些欄位（例如「金額」、「時間」），則列出要查詢的欄位名稱。\n\n若使用者查多個主體，需拆成多筆 request。\n\n📏 6️⃣ 統一輸出規則\n\n最外層一定是 { \"request\": [ ... ] }\n\n所有 key 都用繁體中文。\n\n不要有額外文字、註解或說明。\n\n每筆 request 必須包含：\n\ntype\n\ndescription\n\nfields\n\n若 type 為 query，則包含 query 區塊。\n\n🧠 範例一：更新多主體\n\n輸入：\n\n紅茶和水餃的紀錄，帳目日期請幫我改成是27號下午兩點\n\n輸出：\n\n{\n  \"request\": [\n    {\n      \"type\": \"update\",\n      \"description\": \"更新 紅茶 將 日期 改為 27號 下午兩點\",\n      \"fields\": { \"日期\": \"27號 下午兩點\" }\n    },\n    {\n      \"type\": \"update\",\n      \"description\": \"更新 水餃 將 日期 改為 27號 下午兩點\",\n      \"fields\": { \"日期\": \"27號 下午兩點\" }\n    }\n  ]\n}\n\n🧠 範例二：查詢單一主體\n\n輸入：\n\n幫我查紅茶的紀錄\n\n輸出：\n\n{\n  \"request\": [\n    {\n      \"type\": \"query\",\n      \"description\": \"查詢 紅茶 的紀錄\",\n      \"fields\": { \"主體\": \"紅茶\" },\n      \"query\": {\n        \"條件\": { \"主體\": \"紅茶\" },\n        \"篩選欄位\": []\n      }\n    }\n  ]\n}\n\n🧠 範例三：查詢日期範圍\n\n輸入：\n\n查一下我昨天花的錢總共是多少\n\n輸出：\n\n{\n  \"request\": [\n    {\n      \"type\": \"query\",\n      \"description\": \"查詢 昨天 的所有紀錄 並計算總金額\",\n      \"fields\": { \"日期\": \"昨天\" },\n      \"query\": {\n        \"條件\": { \"日期\": \"昨天\" },\n        \"篩選欄位\": [\"金額\"]\n      }\n    }\n  ]\n}\n\n🧠 範例四：查詢多主體\n\n輸入：\n\n幫我查一下紅茶和水餃在10月的花費\n\n輸出：\n\n{\n  \"request\": [\n    {\n      \"type\": \"query\",\n      \"description\": \"查詢 紅茶 在 10月 的紀錄\",\n      \"fields\": { \"主體\": \"紅茶\", \"日期\": \"10月\" },\n      \"query\": {\n        \"條件\": { \"主體\": \"紅茶\", \"日期\": \"10月\" },\n        \"篩選欄位\": [\"金額\"]\n      }\n    },\n    {\n      \"type\": \"query\",\n      \"description\": \"查詢 水餃 在 10月 的紀錄\",\n      \"fields\": { \"主體\": \"水餃\", \"日期\": \"10月\" },\n      \"query\": {\n        \"條件\": { \"主體\": \"水餃\", \"日期\": \"10月\" },\n        \"篩選欄位\": [\"金額\"]\n      }\n    }\n  ]\n}"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        -3264,
+        720
+      ],
+      "id": "b919b6f3-9321-4589-93bf-9ef0717fd408",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": "qwen3:8b",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
+      "typeVersion": 1,
+      "position": [
+        -3264,
+        1024
+      ],
+      "id": "01431c5f-0f25-4d5d-88e9-d255da902b78",
+      "name": "意圖辨識1",
+      "credentials": {
+        "ollamaApi": {
+          "id": "WnwgdbSuOqe9KNHf",
+          "name": "Ollama account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "schemaType": "manual",
+        "inputSchema": "{\n  \"type\": \"object\",\n  \"properties\": {\n    \"request\": {\n      \"type\": \"array\",\n      \"description\": \"記帳需求結構化的主要輸出，每個元素代表一筆使用者需求。\",\n      \"items\": {\n        \"type\": \"object\",\n        \"properties\": {\n          \"type\": {\n            \"type\": \"string\",\n            \"enum\": [\"create\", \"update\", \"query\"],\n            \"description\": \"需求的類型，可為 create（新增）、update（更新）或 query（查詢）。\"\n          },\n          \"description\": {\n            \"type\": \"string\",\n            \"description\": \"完整的描述句，需以『新增』、『更新』或『查詢』開頭。\"\n          },\n          \"fields\": {\n            \"type\": \"object\",\n            \"description\": \"此需求涉及的欄位資料，例如主體、金額、日期等。若為 update，僅包含被修改欄位；若為 query，則包含查詢條件中出現的要素。\",\n            \"additionalProperties\": {\n              \"type\": [\"string\", \"number\", \"boolean\"]\n            }\n          },\n          \"query\": {\n            \"type\": \"object\",\n            \"description\": \"僅在 type = 'query' 時出現，包含查詢的條件與要篩選的欄位。\",\n            \"properties\": {\n              \"條件\": {\n                \"type\": \"object\",\n                \"description\": \"列出所有查詢條件，如主體、日期、金額範圍等。\",\n                \"additionalProperties\": {\n                  \"type\": [\"string\", \"number\", \"boolean\"]\n                }\n              },\n              \"篩選欄位\": {\n                \"type\": \"array\",\n                \"description\": \"若使用者明確指出要查哪些欄位（例如金額、時間等），則列出這些欄位名稱。\",\n                \"items\": { \"type\": \"string\" }\n              }\n            },\n            \"required\": [\"條件\", \"篩選欄位\"]\n          }\n        },\n        \"required\": [\"type\", \"description\", \"fields\"]\n      }\n    }\n  },\n  \"required\": [\"request\"]\n}\n",
+        "autoFix": true
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        -3200,
+        896
+      ],
+      "id": "47c0c709-9441-4d04-bebd-75cd50b1a7cc",
+      "name": "Structured Output Parser"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        -2704,
+        720
+      ],
+      "id": "e32a63fd-4d88-4f84-a97b-ecd2939449d4",
+      "name": "Loop Over Items"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "8d38906c-08f9-4246-b4b6-e6b67c3f97ea",
+              "name": "output",
+              "value": "={{ $json.output }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -1264,
+        880
+      ],
+      "id": "2cf20bfa-1f8d-4fdb-a824-5a685d672d76",
+      "name": "Empty"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "output.request",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        -2912,
+        720
+      ],
+      "id": "c57f1198-ef66-484d-a2aa-421beaeecea9",
+      "name": "Split Out"
+    },
+    {
+      "parameters": {
+        "inputText": "={{ $json.chatInput }}",
+        "categories": {
+          "categories": [
+            {
+              "category": "伙食",
+              "description": "當描述和吃的有關都屬於這類，不論新增或是更新只要和吃的帳目有關也屬於這一類"
+            },
+            {
+              "category": "交通",
+              "description": "當描述為為了搭乘交通工具的支出都屬於這類"
+            },
+            {
+              "category": "加油",
+              "description": "當描述和交通工具的油錢花費有關就屬於這類"
+            },
+            {
+              "category": "學校",
+              "description": "當描述和學校有關則屬於這類，像是碩論影印、買文具、買教科出等等和學消相關的東西"
+            },
+            {
+              "category": "領錢",
+              "description": "當描述表示去郵局領錢的話屬於這類"
+            },
+            {
+              "category": "蝦皮",
+              "description": "當描述表示去蝦皮這間店商買東西時屬於這類"
+            }
+          ]
+        },
+        "options": {
+          "systemPromptTemplate": "Please classify the text provided by the user into one of the following categories: {categories}, and use the provided formatting instructions below. Don't explain, and only output the json. "
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.textClassifier",
+      "typeVersion": 1.1,
+      "position": [
+        -4128,
+        640
+      ],
+      "id": "cab9c898-9dd2-498e-816b-9411cd663449",
+      "name": "意圖分類器",
+      "alwaysOutputData": false,
+      "executeOnce": false,
+      "notesInFlow": false
+    },
+    {
+      "parameters": {
+        "options": {
+          "systemMessage": "你是一個聊天助手，幫助使用者解答問題，在閒暇時陪使用者聊天。所有回答一律用繁體中文，這點是核心規則，絕對不能違反\"\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        -3264,
+        1440
+      ],
+      "id": "c3a57f2d-12b2-41ae-9904-b5c15d7a58be",
+      "name": "AI Agent1"
+    },
+    {
+      "parameters": {
+        "model": "qwen3:8b",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
+      "typeVersion": 1,
+      "position": [
+        -3296,
+        1616
+      ],
+      "id": "1400e9a2-d7c6-48e6-ba64-f0887a5d1346",
+      "name": "聊天 Bot",
+      "credentials": {
+        "ollamaApi": {
+          "id": "WnwgdbSuOqe9KNHf",
+          "name": "Ollama account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "chat"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        -3168,
+        1616
+      ],
+      "id": "699da364-ae99-4578-b70d-21c9c6cd2ccf",
+      "name": "對話記憶庫"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        -1264,
+        720
+      ],
+      "id": "898e3557-0319-403b-8abb-01e617da398c",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "e1b031f6-15fe-4831-a938-5e85e829608d",
+              "name": "sessionId",
+              "value": "={{ $json.sessionId }}",
+              "type": "string"
+            },
+            {
+              "id": "905e9082-fdaf-401c-8b0f-795e6ec52432",
+              "name": "chatInput",
+              "value": "={{ $json.chatInput }}",
+              "type": "string"
+            },
+            {
+              "id": "763fdc6d-4203-4312-951c-dfba0eb477ba",
+              "name": "category",
+              "value": "={{ $json.category }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -3472,
+        720
+      ],
+      "id": "7c0bf6d0-74af-472d-bd3a-2c447db4e1f8",
+      "name": "整合"
+    },
+    {
+      "parameters": {
+        "model": "qwen3:8b",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
+      "typeVersion": 1,
+      "position": [
+        -1008,
+        896
+      ],
+      "id": "f3eff798-f42b-4f0e-9bcd-06833f919330",
+      "name": "任務總結",
+      "notesInFlow": false,
+      "credentials": {
+        "ollamaApi": {
+          "id": "WnwgdbSuOqe9KNHf",
+          "name": "Ollama account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=請一律用繁體中文回答，回答必須簡短明瞭，只包含品項名稱，不需要金額、時間或其他資訊。\n如果只有一筆品項，回答格式為：\n「已完成{品項名稱}的...(簡短說明))」\n如果有多筆品項，回答格式為：\n「已完成{品項1}和{品項2}的...(簡短說明)」或\n「已完成{品項1}、{品項2}和{品項3}的...(簡短說明)」依此類推。\n\n比方說新增記帳完成後回復\"已完成{品項}的記帳\"，更新完成後回復\"已完成{品項}的記帳更新\"，查詢完成後回復\"已完成{品項}的查詢 找到{個數}解果\"接著列出查詢的結果\n\n以下是使用者輸入：\n{{ $('整合').item.json.chatInput }}\n\n請根據使用者輸入的品項生成簡短完成訊息，僅回覆完成訊息文字，不要其他說明。",
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.7,
+      "position": [
+        -1008,
+        720
+      ],
+      "id": "cfbff92a-d802-45f3-aa42-7fdc9d825c79",
+      "name": "Basic LLM Chain"
+    },
+    {
+      "parameters": {
+        "jsCode": "return [\n  {\n    json: {\n      text: $input.first().json.output.replace(/<think>[\\s\\S]*?<\\/think>/g, '').trim()\n    }\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -576,
+        1440
+      ],
+      "id": "9d0be959-d13e-4b2c-863a-f80995c43c79",
+      "name": "格式化輸出"
+    },
+    {
+      "parameters": {
+        "jsCode": "return [\n  {\n    json: {\n      text: $input.first().json.text.replace(/<think>[\\s\\S]*?<\\/think>/g, '').trim()\n    }\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -592,
+        720
+      ],
+      "id": "58818322-6776-4529-8957-f156e0da7035",
+      "name": "格式化輸出1"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "discord-trigger",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -5488,
+        1168
+      ],
+      "id": "f93e4129-38a7-44f3-bfd6-2193bed06d33",
+      "name": "Discord Webhook",
+      "webhookId": "799264bf-3657-4acf-ad62-3641c5ac49b4"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "aef5864d-d96f-4d13-a95e-6d58ae73302e",
+              "name": "chatInput",
+              "value": "={{ $json.body.content }}",
+              "type": "string"
+            },
+            {
+              "id": "30184b2f-9c9b-4ce9-b5ba-1a77f9e832af",
+              "name": "flowName",
+              "value": "discord",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -5312,
+        1168
+      ],
+      "id": "9050df7e-a621-4daf-93d0-d640c1eb97a4",
+      "name": "Discord Format"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "905e9082-fdaf-401c-8b0f-795e6ec52432",
+              "name": "chatInput",
+              "value": "={{ $('When chat message received').item.json.chatInput }}",
+              "type": "string"
+            },
+            {
+              "id": "6830ac30-3911-4773-a199-96ba59a3ac49",
+              "name": "flowName",
+              "value": "chat",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -5312,
+        976
+      ],
+      "id": "f8b0c179-7e2f-454f-9d79-34fd4fb3a09e",
+      "name": "Chat Format"
+    },
+    {
+      "parameters": {
+        "jsCode": "return [\n  {\n    json: {\n      text: $input.first().json.text\n    }\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        320,
+        304
+      ],
+      "id": "8bdd36e4-009a-47ec-8aad-3d64e4aa12ed",
+      "name": "格式化輸出3"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "06cc5242-6e14-4ae8-a0db-e629877633f1",
+              "name": "chatInput",
+              "value": "={{ $json.chatInput }}",
+              "type": "string"
+            },
+            {
+              "id": "fe0156d9-f904-46b7-99d1-6fc62556e8f5",
+              "name": "flowName",
+              "value": "={{ $json.flowName }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -5024,
+        976
+      ],
+      "id": "724c9f99-2326-433f-8237-7b1631b6a238",
+      "name": "Input Format"
+    },
+    {
+      "parameters": {
+        "resource": "message",
+        "guildId": {
+          "__rl": true,
+          "value": "1427632785643933698",
+          "mode": "list",
+          "cachedResultName": "德意志帝國",
+          "cachedResultUrl": "https://discord.com/channels/1427632785643933698"
+        },
+        "channelId": {
+          "__rl": true,
+          "value": "1432893525703397417",
+          "mode": "list",
+          "cachedResultName": "德意志帝國助手",
+          "cachedResultUrl": "https://discord.com/channels/1427632785643933698/1432893525703397417"
+        },
+        "content": "={{ $json.text }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.discord",
+      "typeVersion": 2,
+      "position": [
+        320,
+        -128
+      ],
+      "id": "220b3788-3ced-43ce-99bc-99e665fbc816",
+      "name": "Send a message1",
+      "webhookId": "daefcd3d-e37e-4bd8-bcd8-062a764bd347",
+      "credentials": {
+        "discordBotApi": {
+          "id": "zRaFcU5xRERMek9q",
+          "name": "Discord Bot account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "4b37286d-f7a8-4be8-8724-c5e5c0449cc9",
+              "leftValue": "={{ $('Input Format').first().json.flowName }}",
+              "rightValue": "=discord",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        96,
+        -112
+      ],
+      "id": "62d0c7eb-9fa6-42a3-af1b-e3305519ac0d",
+      "name": "If1",
+      "alwaysOutputData": false
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -3808,
+        2208
+      ],
+      "id": "cc9f0806-85d4-4e0c-9830-5cd042c36628",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "mode": "delete",
+        "deleteMode": "all"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryManager",
+      "typeVersion": 1.1,
+      "position": [
+        -3552,
+        2080
+      ],
+      "id": "29204b5b-ec9e-4e2b-b011-32ad1fcdade7",
+      "name": "Chat Memory Manager1"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "7a336883-1379-438d-aa08-95d1af38ef80",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -5488,
+        1360
+      ],
+      "id": "a37063a9-ca7d-47f0-b0fa-14c3344c02f8",
+      "name": "Voice Webhook",
+      "webhookId": "7a336883-1379-438d-aa08-95d1af38ef80"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "aef5864d-d96f-4d13-a95e-6d58ae73302e",
+              "name": "chatInput",
+              "value": "={{ $json.body.toolInput }}",
+              "type": "string"
+            },
+            {
+              "id": "30184b2f-9c9b-4ce9-b5ba-1a77f9e832af",
+              "name": "flowName",
+              "value": "voice",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -5312,
+        1360
+      ],
+      "id": "c2f5e0be-2466-4df8-a00e-c08b5fa5c47b",
+      "name": "Voice Format"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "4b37286d-f7a8-4be8-8724-c5e5c0449cc9",
+              "leftValue": "={{ $('Input Format').first().json.flowName }}",
+              "rightValue": "=voice",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        96,
+        128
+      ],
+      "id": "07a96e1f-dafa-47db-84ae-d0593ba8d1c5",
+      "name": "If2",
+      "alwaysOutputData": false
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "c2c0d414-ffbd-4e29-9e9c-03907ad5f055",
+              "name": "text",
+              "value": "=接收到指令 : {{ $json.chatInput }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -4832,
+        -112
+      ],
+      "id": "d7e8b05e-5f12-4a43-af02-8ee5c5fbc282",
+      "name": "接收確認"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "c2c0d414-ffbd-4e29-9e9c-03907ad5f055",
+              "name": "text",
+              "value": "=類別為{{ $('整合').item.json.category }} 完成需求分析 ",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -2976,
+        -112
+      ],
+      "id": "9562e642-a295-40bc-9498-0406958b9e2f",
+      "name": "分析"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "c2c0d414-ffbd-4e29-9e9c-03907ad5f055",
+              "name": "text",
+              "value": "=執行指令 {{ $json.description.replace(/\\s+/g, '') }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -2528,
+        -112
+      ],
+      "id": "3a0b8f36-7876-4758-86da-b724048d8dd3",
+      "name": "命令"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "c2c0d414-ffbd-4e29-9e9c-03907ad5f055",
+              "name": "text",
+              "value": "={{ $json.text }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -2144,
+        -112
+      ],
+      "id": "42123f7b-8165-4765-b470-a18c3740a7ac",
+      "name": "整合1"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        320,
+        112
+      ],
+      "id": "adbc65bc-852c-4091-8a59-bb2f682a0d2e",
+      "name": "Respond to Webhook"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": []
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        544,
+        112
+      ],
+      "id": "e9bcae16-46dd-4040-a703-1470cae25396",
+      "name": "Empty1"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": []
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        544,
+        -128
+      ],
+      "id": "c478cc73-dd55-4dbc-8d55-37c1c04465ab",
+      "name": "Empty2"
+    },
+    {
+      "parameters": {
+        "inputText": "={{ $json.chatInput }}",
+        "categories": {
+          "categories": [
+            {
+              "category": "記帳",
+              "description": "不論是任何類別，只要和記帳有關更新、新增、刪除都屬於這類"
+            },
+            {
+              "category": "聊天",
+              "description": "如果是詢問問題、聊天、休閒、問候，日常對話全都屬於這類"
+            }
+          ]
+        },
+        "options": {
+          "systemPromptTemplate": "Please classify the text provided by the user into one of the following categories: {categories}, and use the provided formatting instructions below. Don't explain, and only output the json. "
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.textClassifier",
+      "typeVersion": 1.1,
+      "position": [
+        -4592,
+        976
+      ],
+      "id": "cd3b2bef-95c1-4179-a17c-348fde8b773b",
+      "name": "意圖分類器1",
+      "alwaysOutputData": false,
+      "executeOnce": false,
+      "notesInFlow": false
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "e1b031f6-15fe-4831-a938-5e85e829608d",
+              "name": "sessionId",
+              "value": "={{ $json.sessionId }}",
+              "type": "string"
+            },
+            {
+              "id": "905e9082-fdaf-401c-8b0f-795e6ec52432",
+              "name": "chatInput",
+              "value": "={{ $json.chatInput }}",
+              "type": "string"
+            },
+            {
+              "id": "763fdc6d-4203-4312-951c-dfba0eb477ba",
+              "name": "category",
+              "value": "加油",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -3760,
+        624
+      ],
+      "id": "b2e921e9-3b2b-4419-8091-eec1b4d70360",
+      "name": "加油"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "e1b031f6-15fe-4831-a938-5e85e829608d",
+              "name": "sessionId",
+              "value": "={{ $json.sessionId }}",
+              "type": "string"
+            },
+            {
+              "id": "905e9082-fdaf-401c-8b0f-795e6ec52432",
+              "name": "chatInput",
+              "value": "={{ $json.chatInput }}",
+              "type": "string"
+            },
+            {
+              "id": "763fdc6d-4203-4312-951c-dfba0eb477ba",
+              "name": "category",
+              "value": "學校",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -3760,
+        768
+      ],
+      "id": "efebd279-33a6-4d37-9e01-8b13454da11c",
+      "name": "學校"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "e1b031f6-15fe-4831-a938-5e85e829608d",
+              "name": "sessionId",
+              "value": "={{ $json.sessionId }}",
+              "type": "string"
+            },
+            {
+              "id": "905e9082-fdaf-401c-8b0f-795e6ec52432",
+              "name": "chatInput",
+              "value": "={{ $json.chatInput }}",
+              "type": "string"
+            },
+            {
+              "id": "763fdc6d-4203-4312-951c-dfba0eb477ba",
+              "name": "category",
+              "value": "領錢",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -3760,
+        912
+      ],
+      "id": "ab152f27-8506-49a5-94b7-f2897ec91c2b",
+      "name": "領錢"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "e1b031f6-15fe-4831-a938-5e85e829608d",
+              "name": "sessionId",
+              "value": "={{ $json.sessionId }}",
+              "type": "string"
+            },
+            {
+              "id": "905e9082-fdaf-401c-8b0f-795e6ec52432",
+              "name": "chatInput",
+              "value": "={{ $json.chatInput }}",
+              "type": "string"
+            },
+            {
+              "id": "763fdc6d-4203-4312-951c-dfba0eb477ba",
+              "name": "category",
+              "value": "蝦皮",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -3760,
+        1056
+      ],
+      "id": "ba6ffa7b-01d2-416b-bca7-c6d5d038d4c8",
+      "name": "蝦皮"
+    },
+    {
+      "parameters": {
+        "content": "## Notion Manager",
+        "height": 592,
+        "width": 2480
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -2944,
+        544
+      ],
+      "id": "0b6f4ca2-3ce4-469f-bf76-8e46c54bce69",
+      "name": "Sticky Note"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "Chat Format",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "意圖辨識": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "意圖分類器",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "意圖分類器1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "伙食": {
+      "main": [
+        [
+          {
+            "node": "整合",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "交通": {
+      "main": [
+        [
+          {
+            "node": "整合",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "其他": {
+      "main": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Notion Mgr": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Notion Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Notion 操作記憶庫": {
+      "ai_memory": [
+        [
+          {
+            "node": "Notion Agent",
+            "type": "ai_memory",
+            "index": 0
+          },
+          {
+            "node": "Chat Memory Manager",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Date Mgr": {
+      "ai_tool": [
+        [
+          {
+            "node": "Notion Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Page": {
+      "ai_tool": [
+        [
+          {
+            "node": "Notion Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Page": {
+      "ai_tool": [
+        [
+          {
+            "node": "Notion Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get DB": {
+      "ai_tool": [
+        [
+          {
+            "node": "Notion Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "意圖辨識1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "Structured Output Parser",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Split Out",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "分析",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Notion Agent",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "命令",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Notion Agent": {
+      "main": [
+        [
+          {
+            "node": "Empty",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Empty": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "意圖分類器": {
+      "main": [
+        [
+          {
+            "node": "伙食",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "交通",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "加油",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "學校",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "領錢",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "蝦皮",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "聊天 Bot": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "對話記憶庫": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_memory",
+            "index": 0
+          },
+          {
+            "node": "Chat Memory Manager1",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "整合": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "任務總結": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent1": {
+      "main": [
+        [
+          {
+            "node": "格式化輸出",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Basic LLM Chain": {
+      "main": [
+        [
+          {
+            "node": "格式化輸出1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "格式化輸出": {
+      "main": [
+        [
+          {
+            "node": "If1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Discord Webhook": {
+      "main": [
+        [
+          {
+            "node": "Discord Format",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Discord Format": {
+      "main": [
+        [
+          {
+            "node": "Input Format",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Chat Format": {
+      "main": [
+        [
+          {
+            "node": "Input Format",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "格式化輸出1": {
+      "main": [
+        [
+          {
+            "node": "If1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Input Format": {
+      "main": [
+        [
+          {
+            "node": "接收確認",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "意圖分類器1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message1": {
+      "main": [
+        [
+          {
+            "node": "Empty2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If1": {
+      "main": [
+        [
+          {
+            "node": "Send a message1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "If2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Chat Memory Manager",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Chat Memory Manager1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Voice Webhook": {
+      "main": [
+        [
+          {
+            "node": "Voice Format",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Voice Format": {
+      "main": [
+        [
+          {
+            "node": "Input Format",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "接收確認": {
+      "main": [
+        [
+          {
+            "node": "整合1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "分析": {
+      "main": [
+        [
+          {
+            "node": "整合1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "命令": {
+      "main": [
+        [
+          {
+            "node": "整合1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "整合1": {
+      "main": [
+        [
+          {
+            "node": "If1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If2": {
+      "main": [
+        [
+          {
+            "node": "Empty1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "格式化輸出3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Respond to Webhook": {
+      "main": [
+        [
+          {
+            "node": "Empty1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "意圖分類器1": {
+      "main": [
+        [
+          {
+            "node": "意圖分類器",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "其他",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "學校": {
+      "main": [
+        [
+          {
+            "node": "整合",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "蝦皮": {
+      "main": [
+        [
+          {
+            "node": "整合",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "領錢": {
+      "main": [
+        [
+          {
+            "node": "整合",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "加油": {
+      "main": [
+        [
+          {
+            "node": "整合",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "Asia/Taipei",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false
+  },
+  "versionId": "58305d79-0002-42f8-957a-f0daf61af6ed",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "f8d23e1975e2e6a56edd35da6de0cad530183062d0b78e478a2ac38f6c9e4100"
+  },
+  "id": "UPdVCZrjCG2KRuqy",
+  "tags": []
+}
